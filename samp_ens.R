@@ -142,7 +142,32 @@ get_figures_and_results <- function(folder_list, sep = '\t', x_lim = NULL, y_lim
       }
     }
   }
+  count_crossings_in_band(results_list)
   list(num_results = results_list, plot = p)
+}
+
+#' Count and report crossings whose tolerance falls in the 0.1-0.25 band
+#'
+#' Iterates over all detected crossing records and counts those whose tolerance
+#' value \code{r} (i.e. the normalised \eqn{\rho}) lies within the interval
+#' \eqn{[0.1, 0.25]}. Out-of-range crossings (marked \code{"pusta"}) are
+#' ignored. The resulting count is written to the console.
+#'
+#' @param num_results A named list of crossing records as returned by
+#'   \code{\link{get_figures_and_results}}.
+#' @return Invisibly, the integer number of crossings in the band.
+count_crossings_in_band <- function(num_results) {
+  band_count <- 0L
+  for (pair in num_results) {
+    for (crossing in pair) {
+      if (is.list(crossing) && !is.null(crossing$r) &&
+          crossing$r >= 0.1 && crossing$r <= 0.25) {
+        band_count <- band_count + 1L
+      }
+    }
+  }
+  cat("Number of crossings with r (rho) in [0.1, 0.25]:", band_count, "\n")
+  invisible(band_count)
 }
 
 #' Collect file paths for all recordings in a data folder
